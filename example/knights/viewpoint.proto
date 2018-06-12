@@ -1,0 +1,319 @@
+package knights.viewpoint;
+
+// 通用pb文件
+message GameInfo {
+    optional uint64 gameId          = 1; // 游戏ID
+    optional string packageName     = 2; // 游戏包名
+    optional uint32 status          = 3; // 状态 1=有效
+    optional string jsonData        = 4; // 游戏json数据
+}
+
+message EtiquetteExamInfo
+{
+    optional uint32 score   = 1; //分数
+    optional uint64 uploadTs= 2; //提交时间戳
+    optional bool isPass    = 3; //是否通过
+}
+
+//荣誉信息
+message HonorInfo
+{
+    optional uint32 id                  = 1; //荣誉ID
+    optional uint32 type                = 2; //荣誉类型，1=史诗勋章，2=荣誉之证
+    optional string name                = 3; //荣誉名称
+    optional bool canUse                = 4; //是否启用
+    optional bool canActive             = 5; //是否激活
+    optional string bigPicUrl           = 6; //大图地址
+    optional string smallPicUrl         = 7; //小图地址
+    optional uint32 ownerCnt            = 8; //拥有该荣誉的用户人数
+    optional string descrption          = 9; //荣誉的描述信息
+    optional string rule                = 10; //荣誉的获取规则
+    optional string noActivePicUrl      = 11; //未点亮的图片
+ }
+//佩戴的荣誉勋章
+message WoreHonorInfo
+{
+    required uint32 id                  = 1;
+    optional uint64 gainTime            = 2; //获取的时间
+    optional HonorInfo info             = 3; //荣誉详情
+}
+
+message LikeInfo {
+    optional string dataId              = 1; // 赞对象ID
+    optional uint32 dataType            = 2; // 赞对象类型 1=评论,2=回复
+    optional uint32 likeType            = 3; // 赞类型 1=赞,2=取消赞
+}
+
+//回复数据
+message ReplyInfo {
+    optional string replyId         = 1; //回复ID
+    optional UserInfo fromUser      = 2; //发回复用户ID
+    optional UserInfo toUser        = 3; //被回复用户ID
+    optional string dataId          = 4; //被回复对象ID
+    optional uint32 dataType        = 5; //被回复对象类型
+    optional string content         = 6; //回复内容
+    optional uint32 likeCnt         = 7; //赞数
+    optional uint32 replyCnt        = 8; //回复条数
+    optional uint32 status          = 9; //状态
+    optional uint64 createTime      = 10; //创建时间
+    optional uint32 seq             = 11; //序号用于分页
+    optional LikeInfo likeInfo      = 12; //赞关系
+    repeated ReplyInfo topReplys    = 13; //一级回复取前n条回复
+}
+
+message GameIntroInfo {
+    optional string introId             = 1; //简介ID
+    optional uint64 gameId              = 2; //游戏ID
+    optional UserInfo userInfo          = 3; //用户信息
+    optional string content             = 4; //简介内容
+    optional uint32 likeCnt             = 5; //赞数
+    optional uint32 replyCnt            = 6; //回复条数
+    optional uint64 updateTime          = 7; //最后更新时间，记录最后回复时间
+    optional uint64 createTime          = 8; //发布时间
+    optional uint32 status              = 9; //状态
+}
+
+message UserInfo
+{
+     required uint64 uuid                   = 1; //用户ID
+     optional uint64 headImgTs              = 2; //头像时间戳，精确到秒
+     optional string nickname               = 3; //昵称
+     optional uint32 sex                    = 4; //性别
+     optional uint64 updateTs               = 5; //数据更新时间戳，精确到秒
+     optional string signature              = 6; //个性签名
+     optional string coverPhoto             = 7; //背景图
+     optional string certType               = 8; //认证类型 现有的认证类型见zk配置：http://zkview.d.xiaomi.net/clusters/c3/nodes?path=%2Fhuyu%2Fknights/user
+     optional string certName               = 9; //认证名称
+     optional string remark                 = 10; //认证备注，认证用户可能带有该字段，非认证用户没有
+     optional uint64 unBlockTs              = 11; //解封时间戳 毫秒
+     optional EtiquetteExamInfo examInfo    = 12; //礼仪考试信息
+     optional WoreHonorInfo woreHonorInfo   = 13; //佩戴的荣誉勋章
+}
+
+
+message ActivityInfo {
+    optional uint32 actId                   = 1; //活动ID
+    optional string name                    = 2; //活动名称
+    optional uint32 type                    = 3; //类型 1=普通活动，2=抖M挑战赛
+    optional uint64 beginTime               = 4; //活动开始时间，单位毫秒
+    optional uint64 endTime                 = 5; //活动结束时间，单位毫秒
+    optional uint32 status                  = 6; //活动状态 1=有效，2=无效
+    optional string actUrl                  = 7; //活动跳转地址
+    optional uint64 gameId                  = 8; //活动关联的游戏，可以不关联
+    optional string icon                    = 9; //活动图标
+}
+
+message VideoInfo {
+    optional string videoId             = 1; //视频ID
+    optional string url                 = 2; //播放地址
+    optional uint32 high                = 3; //视频尺寸高
+    optional uint32 width               = 4; //视频尺寸宽
+    optional uint32 size                = 5; //视频大小
+    optional string cover               = 6; //封面
+    optional uint32 playCnt             = 7; //播放次数
+    optional uint32 duration            = 8; //视频时长(秒)
+}
+
+message SimpleTopicInfo {
+    optional uint32 topicId                         = 1;//话题Id
+    optional string name                            = 2;//话题名称
+}
+
+//*********************** 混排内容 ******************************
+//横向中的竖向内容
+message VerticalInRow {
+    required uint32 contentType         = 1; //内容类型，参见 ContentType
+    optional uint32 positionIndex       = 2; //横向排列位置索引，从0开始
+    optional string content             = 3; //内容，文本时为文字，图片时为图片链接
+    optional VideoInfo videoInfo        = 4; //类型为视频时的视频信息
+}
+
+//横向
+message Horizontal {
+    optional uint32 positionIndex           = 1; //竖向排列位置索引，从0开始
+    repeated VerticalInRow verticalInRow    = 2;
+    optional uint32 templateType            = 3; //模版类型，参见 TemplateType
+}
+
+message MixedContent {
+    repeated Horizontal horizontal      = 1;
+}
+
+//话题信息
+message SimpileTopicInfo {
+    optional uint32 topicId = 1; //话题Id
+    optional string name = 2; //话题名称
+}
+
+message ViewpointInfo {
+    optional string viewpointId         = 1; //观点ID
+    optional uint64 gameId              = 2; //游戏ID
+    optional UserInfo userInfo          = 3; //用户信息
+    optional string title               = 4; //标题
+    optional string content             = 5; //观点
+    optional uint32 score               = 6; //评分 S=5,A=4,B=3,C=2,D=1
+    optional uint32 playDuration        = 7; //玩游戏时长
+    optional uint32 likeCnt             = 8; //赞数
+    optional uint32 replyCnt            = 9; //回复条数
+    optional uint64 updateTime          = 10; //最后更新时间，记录最后回复时间
+    optional uint64 createTime          = 11; //发布时间
+    optional uint32 status              = 12; //状态
+    optional LikeInfo likeInfo          = 13; //赞关系
+    optional GameInfo gameInfo          = 14; //游戏详情，只有按用户拉取时才下发
+    repeated ReplyInfo topReplys        = 15; //回复的 top n
+    optional uint32 dataType            = 16; //数据类型 1=玩后感，8=活动评论
+    optional ActivityInfo actInfo       = 17; //活动详情
+    optional VideoInfo videoInfo        = 18; //视频详情
+    repeated SimpileTopicInfo topicInfo = 19; //话题详情
+    optional bool firstPost             = 20;//第一篇帖子，目前仅限于玩后感和视频和评测
+    optional MixedContent mixedContent  = 21; //内容混排
+    optional uint32 reason              = 22;//屏蔽理由
+    optional uint32 owner               = 23;//所属人 1 普通用户 2 开发者
+}
+
+
+//观点计数
+//key:用户观点总数key规则，kvp_vp_cnt_${dataType}_${dataId}
+message ViewpointCount {
+    optional uint64 dataId          = 1; //用户ID或游戏ID
+    optional uint32 count           = 2; //观点数
+}
+
+//游戏观点数据
+//key:游戏观点key规则，kvp_topvp_${gameId}
+message GameTopViewpoint {
+    optional uint64 gameId              = 1; //游戏ID
+    repeated ViewpointInfo viewpoints   = 2; //观点数据
+}
+
+//观点评级计数
+//key:观点评级计数key规则，kvp_vpscore_cnt_${viewpointId}
+message ViewpointScoreCnt {
+    optional uint64 gameId          = 1; //游戏ID
+    optional uint32 sTotalCnt       = 2; //S评分数
+    optional uint32 aTotalCnt       = 3; //A评分数
+    optional uint32 bTotalCnt       = 4; //B评分数
+    optional uint32 cTotalCnt       = 5; //C评分数
+    optional uint32 dTotalCnt       = 6; //D评分数
+}
+
+//批量获取观点个数
+message MultiGetViewpointCountS2sReq {
+    required uint32 dataType            = 1; //类型 1=用户观点数，2=游戏观点数
+    repeated uint64 dataIds             = 2; //dataType=1时为用户ID，dataType=2时为游戏ID
+}
+message MultiGetViewpointCountS2sRsp {
+    required uint32 retCode                 = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg                  = 2; //错误提示说明
+    repeated ViewpointCount viewpointCount  = 3; //观点个数
+}
+
+//批量获取游戏观点
+message MultiGetGameViewpointS2sReq {
+    repeated uint64 gameIds                 = 1; //游戏ID
+}
+message MultiGetGameViewpointS2sRsp {
+    required uint32 retCode                     = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg                      = 2; //错误提示说明
+    repeated GameTopViewpoint gameViewpoints    = 3; //游戏观点
+}
+
+//获取观点详情
+message GetViewpointS2sReq {
+    required string viewpointId         = 1; //拉取观点详情
+    optional bool needGameInfo          = 2[default = false]; //是否需要拉取游戏详情
+    optional bool needJsonData          = 3[default = false]; //是否需要游戏json数据
+    optional bool needUserInfo          = 4[default = false]; //是否需要拉用户详情
+}
+message GetViewpointS2sRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+    optional ViewpointInfo viewpoint    = 3; //观点详情
+}
+
+//批量获取观点详情
+message MultiGetViewpointS2sReq {
+    repeated string viewpointId         = 1; //拉取观点详情
+    optional bool needGameInfo          = 2[default = false]; //是否需要拉取游戏详情
+    optional bool needJsonData          = 3[default = false]; //是否需要游戏json数据
+    optional bool needUserInfo          = 4[default = false]; //是否需要拉用户详情
+}
+message MultiGetViewpointS2sRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+    repeated ViewpointInfo viewpoints   = 3; //观点详情
+}
+
+//修改观点状态
+message UpdateViewpointStatusS2sReq {
+    required string viewpointId            = 1; //观点ID
+    required uint32 status                 = 2; //状态 1=正常，2=屏蔽
+}
+message UpdateViewpointStatusS2sRsp {
+    required uint32 retCode                = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg                 = 2; //错误提示说明
+}
+
+//添加游戏简介接口
+message PublishGameIntroS2sReq {
+    optional uint64 uuid                = 1; //用户ID
+    optional uint64 gameId              = 2; //游戏ID
+    optional string content             = 4; //内容
+}
+
+message PublishGameIntroS2sRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+    optional string introId             = 3;
+}
+//获取游戏简介详情
+message GetGameIntroS2sReq {
+    required string introId             = 1;
+}
+message GetGameIntroS2sRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+    optional GameIntroInfo gameIntro    = 3;
+}
+
+//修改游戏简介状态
+message UpdateGameIntroStatusS2sReq {
+    required string introId             = 1; //简介ID
+    required uint32 status              = 2; //状态 1=正常，2=屏蔽
+}
+message UpdateGameIntroStatusS2sRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+}
+
+//修改游戏简介
+message UpdateGameIntroS2sReq {
+    required string introId             = 1; //简介ID
+    optional string content             = 2;
+}
+message UpdateGameIntroS2sRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+}
+
+//发表观点接口
+message PublishViewpointReq {
+    optional uint64 uuid                = 1; //用户ID
+    optional uint64 gameId              = 2; //游戏ID
+    optional string title               = 3; //标题
+    optional string content             = 4; //内容
+    optional uint32 score               = 5; //评分，范围[1-5]，游戏得分，活动视频类型用范围不限
+    optional uint32 dataType            = 6[default = 1]; //数据类型 1=玩后感，3=视频，8=活动评论，9=开发者说（文字）12 评测
+    optional uint32 actId               = 7; //活动ID
+    optional VideoInfo videoInfo        = 8; //视频详情
+    optional uint32 topicId             = 9;//话题ID
+    repeated uint64 atUuid              = 10;//被AT的用户id列表
+    optional MixedContent mixedContent  = 11; //混排内容
+    optional uint32 owner               = 12[default = 1];//所属人 1 普通用户 2 开发者
+}
+message PublishViewpointRsp {
+    required uint32 retCode             = 1; //返回码，0代表成功，非0值失败
+    optional string errMsg              = 2; //错误提示说明
+    optional string viewpointId         = 3; //观点ID
+}
+
