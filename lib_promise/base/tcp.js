@@ -7,11 +7,9 @@
  */
 
 const net = require('net');
+const encoding = require('./encoding.js');
 
-const TCP_READ_TIMEOUT = 1000;
-const TCP_WRITE_TIMEOUT = 1000;
-const TCP_RECV_BUFSIZE = 1024;
-const TCP_SEND_BUFSIZE = 1024;
+const HYHEADER_PACKET_HEAD_LEN = Number(1 + 4 + 2 + 4 + 4 + 1 + 2 + 1 + 4); // 头部长度
 const HYHEADER_EOT = ; // hyheader报文末字节
 
 /**
@@ -82,25 +80,23 @@ function connectAndWrite(addrs, buf) {
  */
 function read(socket) {
   return new Promise(function(resolve, reject) {
-    socket.on('readable', () => {
-      let rspBuf;
-      let tmpBuf;
-      for (; ;) {
-        tmpBuf = socket.read();
-        if (tmpBuf == null || tmpBuf.length == 0) {
-          break;
-        }
-        if (!rspBuf) {
-          rspBuf = tmpBuf;
-        } else {
-          rspBuf = Buffer.concat([ rspBuf, tmpBuf ]);
-        }
-        if (HYHEADER_EOT == tmpBuf[tmpBuf.length - 1]) {
-          break;
-        }
+    let buf;
+    let hyheader;
+    socket.on('data', data => {
+      if (!buf) {
+        buf = data;
+      } else {
+        buf = Buffer.concat([ buf, data ]);
       }
-      resolve(rspBuf);
-      socket.destroy();
+      // 如何判读有没有读完？
+      if(buf.length > HYHEADER_PACKET_HEAD_LEN + 1) {
+        hyheader = encoding.newHyHeader(0)._decode(buf.slice(1, HYHEADER_PACKET_HEAD_LEN + 1));
+        console.log(hyheader);
+      }
+      if(hyheader && buf.length === hyheader.Length && HYHEADER_EOT == data[data.length - 1]) {
+        resolve(buf);
+        socket.destroy();
+      }
     });
   });
 }
